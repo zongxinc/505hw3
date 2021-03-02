@@ -5,6 +5,7 @@ from pprint import pprint
 from sklearn import preprocessing
 from sklearn.feature_extraction.text import CountVectorizer
 
+# p2.1: 0.38997214484679665
 trainSentiment = []
 trainTweet = []
 vectorizer = CountVectorizer(stop_words="english", max_features=1000)
