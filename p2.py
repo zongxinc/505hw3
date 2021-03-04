@@ -8,12 +8,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_val_score
-import spacy
+from nltk import word_tokenize
 from gensim.models import Word2Vec
 
 # p2.6
 trainSentiment = []
-trainTweet = ""
+trainTweet = []
 vectorizer = TfidfVectorizer(stop_words="english", max_features=1000)
 count = 0
 with open("sentiment-train.csv", "r") as f:
@@ -23,18 +23,18 @@ with open("sentiment-train.csv", "r") as f:
 		if count == 1:
 			continue
 		trainSentiment.append(row[0])
-		trainTweet = trainTweet + " " + row[1]
-trainTweet = trainTweet.lower()
-lang_class = spacy.util.get_lang_class('en')
-nlp = lang_class()
-nlp.max_length = 5425470
-tokens = nlp.make_doc(trainTweet)
-# pprint(tokens[:10], indent=4)
+		trainTweet.append(row[1].lower())
+
+
+for i in range(len(trainTweet)):
+	trainTweet[i] = word_tokenize(trainTweet[i])
+pprint(trainTweet, indent=4)
 wvModel = Word2Vec(trainTweet, size=300)
 
 # pprint(wvModel.train(trainTweet), indent=4)
 wvModel.save("wvmodel.model")
-
+wvModel = Word2Vec.load("wvmodel.model")
+pprint(wvModel.wv.vocab, indent=4)
 
 
 # # p2.5:4000, 0.766016713091922
