@@ -10,6 +10,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import cross_val_score
 from nltk import word_tokenize
 from gensim.models import Word2Vec
+from sklearn.linear_model import LogisticRegression
 
 # p2.6
 trainSentiment = []
@@ -28,13 +29,41 @@ with open("sentiment-train.csv", "r") as f:
 
 for i in range(len(trainTweet)):
 	trainTweet[i] = word_tokenize(trainTweet[i])
-pprint(trainTweet, indent=4)
-wvModel = Word2Vec(trainTweet, size=300)
 
-# pprint(wvModel.train(trainTweet), indent=4)
-wvModel.save("wvmodel.model")
+
+# wvModel = Word2Vec(trainTweet, size=300)
+# wvModel.save("wvmodel.model")
+average = []
 wvModel = Word2Vec.load("wvmodel.model")
-pprint(wvModel.wv.vocab, indent=4)
+# print(wvModel["guys"])
+for tweet in range(len(trainTweet)):
+	count = 0
+	vec = []
+	for word in trainTweet[tweet]:
+		if word in wvModel.wv.vocab:
+			count += 1
+			vec.append(wvModel[word])
+	if count != 0:
+		average.append(sum(vec)/count)
+	else:
+		trainSentiment.pop(tweet)
+# pprint(average, indent=4)
+clf = LogisticRegression(max_iter=60000)
+clf.fit(average, trainSentiment)
+
+testSentiment = []
+testTweet = []
+count = 0
+with open("sentiment-test.csv", "r") as f:
+	reader = csv.reader(f)
+	for row in reader:
+		count += 1
+		if count == 1:
+			continue
+		testSentiment.append(row[0])
+		testTweet.append(row[1])
+
+
 
 
 # # p2.5:4000, 0.766016713091922
