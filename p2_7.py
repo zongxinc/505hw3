@@ -7,10 +7,12 @@ from sklearn.feature_extraction.text import CountVectorizer
 from nltk import word_tokenize
 from nltk.corpus import stopwords
 
+def dummy_fun(doc):
+    return doc
 stop_words = set(stopwords.words('english')) 
 trainSentiment = []
 trainTweet = []
-vectorizer = CountVectorizer(stop_words="english", max_features=4000)
+vectorizer = CountVectorizer(max_features=4000, lowercase=False, analyzer="word", tokenizer=lambda doc: doc, preprocessor=dummy_fun, token_pattern=None)
 count = 0
 with open("trainingandtestdata/training.1600000.processed.noemoticon.csv", "r", encoding='latin-1') as f:
 	reader = csv.reader(f)
@@ -22,7 +24,9 @@ with open("trainingandtestdata/training.1600000.processed.noemoticon.csv", "r", 
 		tokens = word_tokenize(row[5].lower())
 		processedToken = [w for w in tokens if not w in stop_words]
 		trainTweet.append(processedToken)
-trainTweet = vectorizer.fit_transform(trainTweet)
+
+trainTweet= vectorizer.fit_transform(trainTweet)
+print(trainTweet.shape)
 clf = MultinomialNB()
 clf.fit(trainTweet, trainSentiment)
 
@@ -36,7 +40,7 @@ with open("sentiment-test.csv", "r") as f:
 		if count == 1:
 			continue
 		testSentiment.append(row[0])
-		testTweet.append(row[1])
+		testTweet.append(row[1].lower())
 testTweet = vectorizer.transform(testTweet)
 # print(str(clf.predict(testTweet[0])[0]) == str(testSentiment[200]))
 count = 0
